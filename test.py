@@ -1,4 +1,3 @@
-print("hello")
 print("test")
 
-# 주석 테스트 중
+# 뭐가 바뀌는 거지?
