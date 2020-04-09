@@ -2,6 +2,142 @@ import openpyxl as pyxl
 import pandas as pd
 
 #엑셀 파일(WorkBook) 읽기
+
+time = list()
+pol_data = list()
+name = list()
+date = list()
+O3 = list()
+NO = list()
+CO = list()
+SO = list()
+PM10 = list()
+PM25 = list()
+
+
+#24시간 list를 미리 만들기
+#10 이하 시간에는 숫자'0'추가, 10 이상에는 그냥 time 리스트에 저장
+for t in range(1,25):
+    if t < 10 :
+        time.append('0'+ str(t))
+    else:
+        time.append(t)
+# time.append((r[t].value)[:-1])
+
+for yr in range(2010, 2011):# 2017):
+    for mn in range(1, 2): #  13):
+
+        file_name = "data/측정기록지("+str(yr)+"년"+str(mn)+"월).xlsx"
+
+        print(yr, mn, file_name)
+
+        wb = pyxl.load_workbook(file_name)
+
+        test = wb.worksheets[0] #시트 순서별로 불러오기
+
+        pol_data = list()
+        # name = list()
+        # time = list()
+        date = list()
+
+        #open한 엑셀 파일의 line 수 count
+        sheet_line = 0
+        check_line = 0
+
+        for line in test:
+            sheet_line = sheet_line + 1
+        print(sheet_line)    
+
+        for r in test.rows:
+            check_line = check_line + 1
+
+            if r[0].value == '측 정 소: ' :
+                continue
+            elif r[0].value == '측정항목: ' :
+                name = r[2].value
+                print(name)
+            elif r[0].value == '측정년월: ' :
+                year = (r[1].value)[0:5]
+                #month = int((r[2].value)[0:2])
+                month = (r[2].value)[0:2]
+                print(year, month)
+            elif r[0].value == '구 분' :
+                continue
+            elif r[0].value == '최소' :
+                continue                
+                # #if문을 다 거친 pol_data(자료)를 이곳에서 dataframe에 넣어서 저장하기
+                # if name == 'O₃':
+                #     df = pd.DataFrame(pol_data)
+                #     df.rename(columns={0:name}, inplace=True)
+                #     df.insert(0,'date', date)
+                # else:
+                #     df[name] = pol_data
+
+                #pol_data = list() #자료 항목이 바뀔때 마다 pol_data 리스트를 초기화
+                #time = list()
+                #date = list()
+            elif r[0].value == '최대' :
+                continue
+            elif r[0].value == '평균' :
+                if sheet_line == check_line:
+                    continue
+                else:
+                    if name == 'O₃':
+                        O3 = O3 + pol_data
+                        pol_data = list()
+                    elif name == 'SO₂':
+                        SO = SO + pol_data
+                        pol_data = list()
+                    elif name == 'CO':
+                        CO = CO + pol_data
+                        pol_data = list()
+                    elif name == 'NO₂':
+                        NO = NO + pol_data
+                        pol_data = list()
+                    elif name == 'PM-10':
+                        PM10 = PM10 + pol_data
+                        pol_data = list()
+                    elif name == 'PM-2.5':
+                        PM25 = PM25 + pol_data
+                        pol_data = list()
+                    date = list()
+
+            elif r[0].value == None :
+                continue
+            else : #오염 자료가 있는 1일부터 말일까지 읽기
+                #날짜 중 '일'에 숫자 0 붙히기
+                if int((r[0].value)[:-1]) < 10 :
+                    day = '0'+ (r[0].value)[:-1]
+                else :
+                    day = (r[0].value)[:-1]
+
+                #각 오염 농도값을 pol_data 리스트에 추가하기
+                for i in range(1,25):
+                    pol_data.append(r[i].value)
+                    date.append(str(year)+str(month)+str(day)+str(time[i-1]))
+                 #   print(str(year)+str(month)+str(day)+str(time[i-1]), pol_data[i-1])
+                    print(year, month, day, time[i-1])
+
+
+df = pd.DataFrame({'O₃':pd.Series(O3), 'SO₂':pd.Series(SO), 'CO':pd.Series(CO), 'NO₂':pd.Series(NO),'PM-10':pd.Series(PM10), 'PM-2.5':pd.Series(PM25)})
+#d = {'O₃':O3, 'SO₂':SO, 'CO':CO, 'NO₂':NO,'PM-10':PM10, 'PM-2.5':PM2.5}
+#df = pd.DataFrame(d)
+df.insert(0,'date', date)
+
+print(df)
+
+# index를 date로 바꾸려면 아래 문장 사용해야함.
+#df.set_index('date', inplace=True)
+#print(df)
+
+#df.to_excel('result.xlsx',sheet_name='Sheet1')
+
+
+quit()
+
+
+
+#-------------------------------------------------------------------------------------
 file_name = "data/측정기록지(2010년1월).xlsx"
 wb = pyxl.load_workbook(file_name)
 
