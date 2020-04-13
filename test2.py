@@ -5,8 +5,9 @@ import pandas as pd
 
 time = list()
 pol_data = list()
-name = list()
+#name = list()
 date = list()
+tot_date = list()
 O3 = list()
 NO = list()
 CO = list()
@@ -14,6 +15,8 @@ SO = list()
 PM10 = list()
 PM25 = list()
 
+#일(day) 수 초기화
+num_day = 0
 
 #24시간 list를 미리 만들기
 #10 이하 시간에는 숫자'0'추가, 10 이상에는 그냥 time 리스트에 저장
@@ -25,7 +28,7 @@ for t in range(1,25):
 # time.append((r[t].value)[:-1])
 
 for yr in range(2010, 2011):# 2017):
-    for mn in range(1, 2): #  13):
+    for mn in range(1, 13): #  13):
 
         file_name = "data/측정기록지("+str(yr)+"년"+str(mn)+"월).xlsx"
 
@@ -41,12 +44,7 @@ for yr in range(2010, 2011):# 2017):
         date = list()
 
         #open한 엑셀 파일의 line 수 count
-        sheet_line = 0
         check_line = 0
-
-        for line in test:
-            sheet_line = sheet_line + 1
-        print(sheet_line)    
 
         for r in test.rows:
             check_line = check_line + 1
@@ -65,47 +63,49 @@ for yr in range(2010, 2011):# 2017):
                 continue
             elif r[0].value == '최소' :
                 continue                
-                # #if문을 다 거친 pol_data(자료)를 이곳에서 dataframe에 넣어서 저장하기
-                # if name == 'O₃':
-                #     df = pd.DataFrame(pol_data)
-                #     df.rename(columns={0:name}, inplace=True)
-                #     df.insert(0,'date', date)
-                # else:
-                #     df[name] = pol_data
-
-                #pol_data = list() #자료 항목이 바뀔때 마다 pol_data 리스트를 초기화
-                #time = list()
-                #date = list()
             elif r[0].value == '최대' :
-                continue
-            elif r[0].value == '평균' :
-                if sheet_line == check_line:
-                    continue
-                else:
-                    if name == 'O₃':
-                        O3 = O3 + pol_data
-                        pol_data = list()
-                    elif name == 'SO₂':
-                        SO = SO + pol_data
-                        pol_data = list()
-                    elif name == 'CO':
-                        CO = CO + pol_data
-                        pol_data = list()
-                    elif name == 'NO₂':
-                        NO = NO + pol_data
-                        pol_data = list()
-                    elif name == 'PM-10':
-                        PM10 = PM10 + pol_data
-                        pol_data = list()
-                    elif name == 'PM-2.5':
-                        PM25 = PM25 + pol_data
-                        pol_data = list()
+                if name == 'O₃':
+                    O3 = O3 + pol_data
+                    pol_data = list()
                     date = list()
-
+                elif name == 'SO₂':
+                    SO = SO + pol_data
+                    pol_data = list()
+                    date = list()
+                elif name == 'CO':
+                    CO = CO + pol_data
+                    pol_data = list()
+                    date = list()
+                elif name == 'NO₂':
+                    NO = NO + pol_data
+                    pol_data = list()
+                    date = list()
+                elif name == 'PM-10':
+                    if test.max_row == check_line + 1:
+                        print(test.max_row, check_line)
+                        PM10 = PM10 + pol_data
+                        tot_date = tot_date + date
+                        #PM25 리스트에 일수만큼의 null값(-999)을 넣어라 (일수*24시간)
+                        for x in range(num_day*24):
+                            PM25.append(-999)
+                    else:
+                        PM10 = PM10 + pol_data
+                        print(test.max_row, check_line)
+                        pol_data = list()
+                        date = list()
+                elif name == 'PM-2.5':
+                    PM25 = PM25 + pol_data
+                    tot_date = tot_date + date
+                    break
+            elif r[0].value == '평균' :
+                num_day = 0
+                continue
             elif r[0].value == None :
                 continue
             else : #오염 자료가 있는 1일부터 말일까지 읽기
                 #날짜 중 '일'에 숫자 0 붙히기
+                num_day = num_day + 1
+
                 if int((r[0].value)[:-1]) < 10 :
                     day = '0'+ (r[0].value)[:-1]
                 else :
@@ -113,16 +113,25 @@ for yr in range(2010, 2011):# 2017):
 
                 #각 오염 농도값을 pol_data 리스트에 추가하기
                 for i in range(1,25):
-                    pol_data.append(r[i].value)
+                    obj = r[i].value
+                    pol_data.append(obj)
+                    #pd.Series(pol_data).fillna('-999')
+                    
+                    # if (r[i].value).isnull() == None:
+                    #     r[i] = 'Null'
+                    #     pol_data.append(r[i].value)
+                    # else:
+                    #     pol_data.append(r[i].value)
+                                        
                     date.append(str(year)+str(month)+str(day)+str(time[i-1]))
-                 #   print(str(year)+str(month)+str(day)+str(time[i-1]), pol_data[i-1])
-                    print(year, month, day, time[i-1])
+                    # print(year, month, day, time[i-1], pol_data[i-1])
 
 
-df = pd.DataFrame({'O₃':pd.Series(O3), 'SO₂':pd.Series(SO), 'CO':pd.Series(CO), 'NO₂':pd.Series(NO),'PM-10':pd.Series(PM10), 'PM-2.5':pd.Series(PM25)})
+df = pd.DataFrame({'Date':pd.Series(tot_date),'O₃':pd.Series(O3), 'SO₂':pd.Series(SO), 'CO':pd.Series(CO), 'NO₂':pd.Series(NO),'PM-10':pd.Series(PM10), 'PM-2.5':pd.Series(PM25)})
+
 #d = {'O₃':O3, 'SO₂':SO, 'CO':CO, 'NO₂':NO,'PM-10':PM10, 'PM-2.5':PM2.5}
 #df = pd.DataFrame(d)
-df.insert(0,'date', date)
+#df.insert(0,'date', date)
 
 print(df)
 
@@ -130,7 +139,7 @@ print(df)
 #df.set_index('date', inplace=True)
 #print(df)
 
-#df.to_excel('result.xlsx',sheet_name='Sheet1')
+df.to_excel('result_test.xlsx',sheet_name='Sheet1')
 
 
 quit()
