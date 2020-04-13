@@ -97,6 +97,9 @@ for yr in range(2010, 2011):# 2017):
                     PM25 = PM25 + pol_data
                     tot_date = tot_date + date
                     break
+                else:
+                    pol_data = list()
+                    date = list()
             elif r[0].value == '평균' :
                 num_day = 0
                 continue
