@@ -15,6 +15,13 @@ SO = list()
 PM10 = list()
 PM25 = list()
 
+#관측 지점 목록
+obs_site = ['광복동', '장림동', '학장동', '덕천동', '연산동', '대연동', '청룡동', 
+    '전포동', '태종대','기장읍','대저동','부곡동','광안동','명장동','녹산동','용수리',
+        '좌동','수정동','대신동','온천동','초량동']
+
+
+
 #일(day) 수 초기화
 num_day = 0
 
@@ -27,7 +34,7 @@ for t in range(1,25):
         time.append(t)
 # time.append((r[t].value)[:-1])
 
-for yr in range(2010, 2011):# 2017):
+for yr in range(2010, 2012):# 2017):
     for mn in range(1, 13): #  13):
 
         file_name = "data/측정기록지("+str(yr)+"년"+str(mn)+"월).xlsx"
