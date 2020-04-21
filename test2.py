@@ -1,6 +1,6 @@
 import openpyxl as pyxl
 import pandas as pd
-import os
+import numpy as np
 
 #엑셀 파일(WorkBook) 읽기
 
@@ -39,7 +39,7 @@ writer = pd.ExcelWriter('result_test.xlsx') #output파일 생성
 
 for site_name in obs_site:
 
-    for yr in range(2010, 2011):# 2017):
+    for yr in range(2010, 2012):# 2017):
         for mn in range(1, 13): #  13):
 
             if site_name == '학장동' and yr == 2010 and mn < 7 : #감전동 (구 학장동) 지점 고려
@@ -109,9 +109,10 @@ for site_name in obs_site:
                             PM10 = PM10 + pol_data
                             tot_date = tot_date + date
 
-                            #PM25 리스트에 일수만큼의 null값(-999)을 넣어라 (일수*24시간)
+                            #PM25 리스트에 일수만큼의 null값(-999, Nan값)을 넣어라 (일수*24시간)
                             for x in range(num_day*24):
-                                PM25.append(-999)
+                                #PM25.append(-999)
+                                PM25.append(np.nan)
                         else:  #마지막 행이 아닐경우 = 뒤에 PM2.5가 남았을 경우
                             PM10 = PM10 + pol_data
                             print(test.max_row, check_line)
@@ -125,7 +126,8 @@ for site_name in obs_site:
                         tot_date = tot_date + date
 
                         for x in range(num_day*24):
-                                PM25.append(-999)
+                                #PM25.append(-999)
+                                PM25.append(np.nan)
 
                         break
                     else:
@@ -148,6 +150,11 @@ for site_name in obs_site:
                     #각 오염 농도값을 pol_data 리스트에 추가하기
                     for i in range(1,25):
                         obj = r[i].value
+
+                        if str(type(r[i].value)) == "<class 'str'>":
+                            print(type(r[i].value))
+                            obj = np.nan
+
                         pol_data.append(obj)
 
                         date.append(str(year)+str(month)+str(day)+str(time[i-1]))
@@ -161,6 +168,7 @@ for site_name in obs_site:
     writer.save()
 
     print(df.sum())
+    print(df.mean(skipna=True))
     #print(df.sum(axis=0, skipna=True))
 
     quit()
