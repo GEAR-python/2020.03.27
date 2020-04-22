@@ -151,6 +151,7 @@ for site_name in obs_site:
                     for i in range(1,25):
                         obj = r[i].value
 
+                        #자료 중 '교정중, 동작불량 등 문자열들을 nan 값으로 치환
                         if str(type(r[i].value)) == "<class 'str'>":
                             print(type(r[i].value))
                             obj = np.nan
