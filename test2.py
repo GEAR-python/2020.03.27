@@ -16,11 +16,12 @@ PM10 = list()
 PM25 = list()
 
 #관측 지점 목록
-obs_site = ['광복동', '장림동', '학장동', '덕천동', '연산동', '대연동', '청룡동', 
-     '전포동', '태종대','기장읍','대저동','부곡동','광안동','명장동','녹산동','용수리',
-         '좌동','수정동','대신동','온천동','초량동']
+# obs_site = ['광복동', '장림동', '학장동', '덕천동', '연산동', '대연동', '청룡동', 
+#      '전포동', '태종대','기장읍','대저동','부곡동','광안동','명장동','녹산동','용수리',
+#          '좌동','수정동','대신동','온천동','초량동']
 
-# test # obs_site = ['전포동'] # test
+# test 
+obs_site = ['광복동', '장림동'] # test
 
 #일(day) 수 초기화
 num_day = 0
@@ -35,11 +36,12 @@ for t in range(1,25):
 # time.append((r[t].value)[:-1])
 
 writer = pd.ExcelWriter('result_test.xlsx') #output파일 생성
+
 # test # writer = pd.ExcelWriter('result_jeonpo.xlsx') #output파일 생성     
 
 for site_name in obs_site:
 
-    for yr in range(2010, 2012):# 2017):
+    for yr in range(2010, 2011):# 2017):
         for mn in range(1, 13): #  13):
 
             if site_name == '학장동' and yr == 2010 and mn < 7 : #감전동 (구 학장동) 지점 고려
@@ -153,7 +155,7 @@ for site_name in obs_site:
 
                         #자료 중 '교정중, 동작불량 등 문자열들을 nan 값으로 치환
                         if str(type(r[i].value)) == "<class 'str'>":
-                            print(type(r[i].value))
+                            #print(type(r[i].value))
                             obj = np.nan
 
                         pol_data.append(obj)
@@ -166,13 +168,31 @@ for site_name in obs_site:
     print(df)
 
     df.to_excel(writer, sheet_name=site_name)
+   
+    mean_value = df.mean(skipna=True)
+
     writer.save()
 
-    print(df.sum())
-    print(df.mean(skipna=True))
-    #print(df.sum(axis=0, skipna=True))
+   # 통계치 계산해서 저장할 결과 파일 만들기
 
-    quit()
+    list_pol = ['O₃', 'SO₂', 'CO', 'NO₂','PM-10','PM-2.5']
+
+    result_read = pyxl.load_workbook(writer)
+
+    #real_result = pd.ExcelWriter('test_mean.xlsx')
+
+    ws = result_read[site_name]
+
+    n = 10
+
+    for data in list_pol:
+        ws.cell(row=1, column=n).value = list_pol[n-10]
+        ws.cell(row=2, column=n).value = mean_value[data]
+
+        n = n + 1
+    
+    #result_read.save('test_mean.xlsx')
+    result_read.save('result_test.xlsx')
 
     tot_date = list()
     O3 = list()
@@ -185,8 +205,4 @@ for site_name in obs_site:
 # index를 date로 바꾸려면 아래 문장 사용해야함.
 #df.set_index('date', inplace=True)
 #print(df)
-
-
-
-
 
