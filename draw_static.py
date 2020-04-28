@@ -16,14 +16,15 @@ for sheet in sheet_names:
 
 ws = dfs['average']
 
- = ws['O₃']
+print(ws.index)
+#test = pd.DataFrame({"pollution":ws['O₃'], "conc":ws.index})
 
+#sns.distplot(ws['O₃'])
 
+sns.relplot(x = "O₃", y = "PM-10", data = ws)
 
-sns.regplot(x)
+plt.show()
 
-
-print()
 
 #ws = rb['average'] #min max
 
