@@ -2,6 +2,10 @@ import openpyxl as pyxl
 import pandas as pd
 import numpy as np
 
+import datetime
+from dateutil.parser import parse
+
+
 #프로그램 내에서 사용할 list 정의 (생성)
 
 time = list()
@@ -34,12 +38,13 @@ num_day = 0
 
 #24시간 list를 미리 만들기
 #10 이하 시간에는 숫자'0'추가, 10 이상에는 그냥 time 리스트에 저장
-for t in range(1,25):
+for t in range(0,24):
     if t < 10 :
         time.append('0'+ str(t))
     else:
         time.append(t)
 # time.append((r[t].value)[:-1])
+
 
 writer = pd.ExcelWriter('result_test.xlsx') #output파일 생성
 # test # writer = pd.ExcelWriter('result_jeonpo.xlsx') #output파일 생성     
@@ -112,7 +117,7 @@ for site_name in obs_site: #지점별로 loop
                         pol_data = list()
                         date = list()
                     elif name == 'PM-10':
-                        if test.max_row == check_line + 1: # 마지막 행(row)일 경우 = PM2.5가 없을경우
+                        if test.max_row == check_line + 1: # 마지막 행(row)일 경우 = PM2.5가 없을 경우
                             print(test.max_row, check_line)
                             PM10 = PM10 + pol_data
                             tot_date = tot_date + date
@@ -166,9 +171,16 @@ for site_name in obs_site: #지점별로 loop
 
                         pol_data.append(obj)
 
-                        date.append(str(year)+str(month)+str(day)+str(time[i-1]))
-                        # print(year, month, day, time[i-1], pol_data[i-1])
+                        ## 연월일시간에다가 분은 00으로 설정. parse는 시간만 있고 분이 없으니깐 인식을 못함
+                        ## parse 이용해서 날짜+시간의 형식 변형
+                        conv_date = str(year)+str(month)+str(day)+str(time[i-1])+'00'
 
+                        date.append(parse(conv_date))
+
+                        #date.append(datetime.datetime.strptime(conv_date,"%Y%m%d%H"))
+
+                      #  date.append(str(year)+str(month)+str(day)+str(time[i-1]))
+                     
     #지점별, 오염별 자료를 DataFrame 형태로 작성
     df = pd.DataFrame({'Date':pd.Series(tot_date),'O₃':pd.Series(O3), 'SO₂':pd.Series(SO), 'CO':pd.Series(CO), 'NO₂':pd.Series(NO),'PM-10':pd.Series(PM10), 'PM-2.5':pd.Series(PM25)})
     
