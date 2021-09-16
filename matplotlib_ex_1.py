@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+print('test')
+
 #간단한 직선 그래프 그리기
 x_1 = [1,2,3]
 y_1 = [0,1,2]
